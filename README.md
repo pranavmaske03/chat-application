@@ -49,7 +49,7 @@ You will be asked to enter your name. Once connected, you will see the server's 
 
 ## File Structure
 ```
-📂 ChatBox
+📂 chat_application
  ├── Server.java   # Server-side implementation
  ├── Client.java   # Client-side implementation
  └── README.md     # Project documentation
