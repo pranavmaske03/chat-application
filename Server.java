@@ -1,7 +1,11 @@
 import java.net.*;
 import java.io.*;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 class Server {
+    static volatile boolean connected = true;
+
     public static void main(String arg[]) throws Exception {
         System.out.println("Server Application is running...");
         ServerSocket ssobj = new ServerSocket(2100);
@@ -10,35 +14,56 @@ class Server {
         Socket s = ssobj.accept();
         System.out.println("Client connected!");
 
-        PrintStream ps = new PrintStream(s.getOutputStream());
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(s.getOutputStream()));
         BufferedReader br1 = new BufferedReader(new InputStreamReader(s.getInputStream()));
         BufferedReader br2 = new BufferedReader(new InputStreamReader(System.in));
 
-        // Thread to receive messages from the client
+        System.out.print("Enter your name: ");
+        String serverName = br2.readLine();
+
+        bw.write(serverName);
+        bw.newLine();
+        bw.flush();
+
+        String clientName = br1.readLine();
+        System.out.println(clientName + " has joined the chat!");
+
+        final String finalClientName = clientName;
+
         Thread receiveThread = new Thread(() -> {
             try {
                 String str;
                 while ((str = br1.readLine()) != null) {
-                    System.out.println("\nClient says: " + str);
-                    System.out.print("Enter message: "); // Keep input prompt
+                    String time = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
+                    System.out.println("\n[" + time + "] " + finalClientName + ": " + str);
+                    System.out.print("Enter message: ");
                 }
             } catch (Exception e) {
-                System.out.println("Connection closed.");
+            } finally {
+                connected = false;
+                System.out.println("\n" + finalClientName + " disconnected.");
             }
         });
         receiveThread.start();
 
-        // Main thread for sending messages
         String str2;
-        while (!(str2 = br2.readLine()).equalsIgnoreCase("end")) {
-            ps.println(str2);
+        while (connected && !(str2 = br2.readLine()).equalsIgnoreCase("end")) {
+            if (!connected) break;
+            try {
+                bw.write(str2);
+                bw.newLine();
+                bw.flush();
+            } catch (Exception e) {
+                System.out.println("Could not send — client disconnected.");
+                break;
+            }
         }
 
         System.out.println("Chat ended.");
-        ps.close();
-        br1.close();
-        br2.close();
-        s.close();
-        ssobj.close();
+        try { bw.close(); } catch (Exception ignored) {}
+        try { br1.close(); } catch (Exception ignored) {}
+        try { br2.close(); } catch (Exception ignored) {}
+        try { s.close(); } catch (Exception ignored) {}
+        try { ssobj.close(); } catch (Exception ignored) {}
     }
 }
