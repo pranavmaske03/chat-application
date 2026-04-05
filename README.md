@@ -1,43 +1,83 @@
-# A Simple Java Client-Server Chat Application
+# Java Client-Server Chat Application
 
-It is a basic real-time chat application built using **Java Sockets**. It enables communication between a client and a server over a network. With **multithreading**, it ensures seamless message exchange without delays.
+A simple real-time chat app built using **Java Sockets**. Two people can chat with each other over a network using the terminal. Uses **multithreading** so both sides can send and receive messages at the same time.
 
 ## Features
-- ✅ Real-time messaging between client and server
-- ✅ Uses **Java Socket Programming** for networking
-- ✅ **Multithreaded** to allow simultaneous send/receive
-- ✅ Simple and easy-to-understand code structure
+- Real-time messaging between client and server
+- Usernames — each person sets their name before chatting starts
+- Timestamps on every message so you know when it was sent
+- Graceful disconnection — if either side exits, the other is notified cleanly
+- Built on Java Socket Programming with TCP
+- Multithreaded so sending and receiving never block each other
 
 ## Technologies Used
 - Java
 - TCP Sockets
 - Multithreading
+- `java.time` for timestamps
 
 ## How to Run
 
-### Open the terminal
-#### 1️⃣ Start the Server
+Open two terminal windows.
+
+#### 1. Start the Server
 ```bash
 javac Server.java
 java Server
 ```
+You will be asked to enter your name. Once the client connects, the chat begins.
 
-#### 2️⃣ Start the Client
+#### 2. Start the Client
 ```bash
 javac Client.java
 java Client
 ```
+You will be asked to enter your name. Once connected, you will see the server's name and can start chatting right away.
+
+#### 3. Chatting
+- Just type your message and press Enter to send
+- Messages show the sender's name and the time they were sent
+- Type `end` to close the chat on your side
+- If the other person disconnects, you will be notified automatically
 
 ## How It Works
-1. The **server** starts and listens for a connection on a specified port.
-2. The **client** connects to the server using its IP and port.
-3. Both client and server can send messages in **real-time**.
-4. Type `end` to terminate the chat session.
+1. The **server** starts and waits for someone to connect on port 2100
+2. Both sides enter their names — these are exchanged automatically as a handshake
+3. A background thread on each side listens for incoming messages continuously
+4. The main thread handles sending messages
+5. Type `end` or close the terminal to end the session cleanly
 
 ## File Structure
-```plaintext
+```
 📂 ChatBox
  ├── Server.java   # Server-side implementation
  ├── Client.java   # Client-side implementation
- ├── README.md     # Project documentation
+ └── README.md     # Project documentation
+```
+
+## Example Session
+
+**Server terminal:**
+```
+Server Application is running...
+Waiting for client to connect...
+Enter your name: Alice
+Client connected!
+Bob has joined the chat!
+Enter message:
+
+[10:35 AM] Bob: Hey Alice!
+Enter message: Hi Bob, good to see you here!
+```
+
+**Client terminal:**
+```
+Client Application is running...
+Connected to server!
+Enter your name: Bob
+Alice is online. Start chatting!
+Enter message: Hey Alice!
+
+[10:35 AM] Alice: Hi Bob, good to see you here!
+Enter message:
 ```
